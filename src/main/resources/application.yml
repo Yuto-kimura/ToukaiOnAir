@@ -10,3 +10,8 @@ spring:
   h2:
     console:
       enabled: true
+key:
+  apiKey: ${APIKEY}
+  apiSecretKey: ${APISECRETKEY}
+  accessToken: ${ACCESSTOKEN}
+  accessTokenSecret: ${ACCESSTOKENSECRET}
