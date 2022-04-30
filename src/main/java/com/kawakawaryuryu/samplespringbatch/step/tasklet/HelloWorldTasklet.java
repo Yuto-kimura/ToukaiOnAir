@@ -1,12 +1,15 @@
 package com.kawakawaryuryu.samplespringbatch.step.tasklet;
 
+import static io.github.redouane59.twitter.dto.tweet.MediaCategory.TWEET_IMAGE;
 import com.kawakawaryuryu.samplespringbatch.entity.ToukaiEntity;
-import com.kawakawaryuryu.samplespringbatch.service.ParamConverter;
 import com.kawakawaryuryu.samplespringbatch.service.ParamConverterImpl;
 import io.github.redouane59.twitter.TwitterClient;
 import io.github.redouane59.twitter.dto.tweet.Tweet;
+import io.github.redouane59.twitter.dto.tweet.TweetParameters;
+import io.github.redouane59.twitter.dto.tweet.UploadMediaResponse;
 import io.github.redouane59.twitter.signature.TwitterCredentials;
 import java.io.File;
+import java.util.Collections;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.springframework.batch.core.StepContribution;
@@ -26,8 +29,6 @@ public class HelloWorldTasklet implements Tasklet {
     ToukaiEntity toukaiEntity = new ToukaiEntity();
     @Override
     public RepeatStatus execute(StepContribution contribution, ChunkContext chunkContext) throws Exception {
-//        TwitterClient twitterClient = new TwitterClient(TwitterClient.OBJECT_MAPPER
-//                .readValue(new File("/Users/coron/東海オンエア/sample-spring-batch/key.json"), TwitterCredentials.class));
 
         TwitterClient twitterClient = new TwitterClient(TwitterCredentials.builder()
                 .accessToken(toukaiEntity.getAccessToken())
@@ -36,11 +37,28 @@ public class HelloWorldTasklet implements Tasklet {
                 .apiSecretKey(toukaiEntity.getApiSecretKey())
                 .build());
 
-        String randomParams = new ParamConverterImpl().convretParam();
+        String randomName = new ParamConverterImpl().convretParam();
+        TweetParameters parameters;
+        if(randomName.equals("東海オンエア")){
+            randomName = "東海オンエア！！！！！！！！！！！！！！";
+            // 各メンバーの写真から一枚をランダムに選択する
+            String ImageFilePath = new ParamConverterImpl().selectImageFile();
+            // 画像ファイル指定
+            UploadMediaResponse
+                    resultPost2 =twitterClient.uploadMedia(new File("./src/main/resources/"+ImageFilePath), TWEET_IMAGE);
+
+            // Tweet内容と画像指定
+            parameters = TweetParameters.builder().text(randomName).media(TweetParameters.Media.builder().mediaIds(
+                    Collections.singletonList(resultPost2.getMediaId())).build()).build();
+        }
+        else{
+            // ツイート内容と画像を出力
+            parameters = TweetParameters.builder().text(randomName).build();
+        }
 
         //ツイート内容のログを落とす
-        logger.log(Level.INFO,randomParams);
-        Tweet  resultPost = twitterClient.postTweet(randomParams);
+        logger.log(Level.INFO,parameters.getText());
+        Tweet  resultPost = twitterClient.postTweet(parameters);
         return RepeatStatus.FINISHED;
     }
 }

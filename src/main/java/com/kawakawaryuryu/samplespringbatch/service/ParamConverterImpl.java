@@ -10,8 +10,13 @@ public class ParamConverterImpl implements ParamConverter {
     @Override
     public String convretParam(){
         String invalidParams = "東海オンエア";
-        invalidParams = toRandomParam(invalidParams);
-        return invalidParams;
+
+            invalidParams = toRandomParam(invalidParams);
+
+            // 0.5%の確率で名前を表示させる
+            String Name =  decideNameByPercentage(invalidParams);
+
+        return Name;
     }
 
     private String toRandomParam(String invalidParams){
@@ -27,5 +32,35 @@ public class ParamConverterImpl implements ParamConverter {
             params.remove(randomNum);
         }
         return randomParams.stream().collect(Collectors.joining());
+    }
+
+    private String decideNameByPercentage(String invalidParam){
+        int randomPercentage = new Random().nextInt(1001);
+        // 5%以下なら「東海オンエア」と格納
+        if(randomPercentage<6){
+            return "東海オンエア";
+        }
+        return invalidParam;
+    }
+
+    public String selectImageFile(){
+        //
+        int randomNumberToFindImage = new Random().nextInt(7);
+
+        switch (randomNumberToFindImage){
+            case 1:
+                return "tetuya.jpeg";
+            case 2:
+                return "ryou.jpeg";
+            case 3:
+                return "yumemaru.png";
+            case 4:
+                return "sibayu.png";
+            case 5:
+                return "toshimitu.png";
+            case 6:
+                return "musimegane.png";
+        }
+        return "tesuya.jpeg";
     }
 }
